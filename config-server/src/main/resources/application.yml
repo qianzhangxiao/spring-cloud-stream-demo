@@ -1,0 +1,36 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: config-server
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://gitee.com/newcomer_qian/pictures.git  #配置仓库所在地址,ssh地址需登录认证，故采用https地址，无需校验
+#          username: qianzhangxiao@qq.com #git等产品账号
+#          password: qian13579 #git等产品密码
+          # default-label:   #配置文件分值
+          search-paths: cloudConfig   #配置文件所在根目录
+          force-pull: true
+
+eureka:
+  instance:
+    prefer-ip-address: true  #是否使用ip地址注册
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+  client:
+    service-url: #设置服务注册中心地址，集群环境
+      defaultZone: http://root:123456@localhost:8761/eureka/,http://root:123456@localhost:8762/eureka/
+#度量指标监控与健康检查,实现config配置的手动刷新
+management:
+  endpoints:
+    web:
+      base-path: /actuator  #访问端点的根路径，默认为/actuator
+      exposure:
+        include: busrefresh,busenv

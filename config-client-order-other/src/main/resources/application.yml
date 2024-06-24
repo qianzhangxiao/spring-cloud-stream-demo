@@ -1,0 +1,45 @@
+server:
+  port: 9092
+
+spring:
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+  cloud:
+    bootstrap:
+      enabled: true
+    config:
+      name: order-service  # 配置文件名称，对应git仓库中配置文件的前半部分
+      label: master  #git分支
+      profile: prod #指定环境
+      discovery:
+        enabled: true
+        service-id: config-server  #指定配置中心服务端service-id
+  config:
+    import: optional:configserver:http://root:123456@localhost:8762/eureka/,optional:configserver:http://root:123456@localhost:8762/eureka/
+    name: order-service
+
+eureka:
+  instance:
+    prefer-ip-address: true  #是否使用ip地址注册
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+  client:
+    service-url: #设置服务注册中心地址，集群环境
+      defaultZone: http://root:123456@localhost:8761/eureka/,http://root:123456@localhost:8762/eureka/
+
+#度量指标监控与健康检查,实现config配置的手动刷新
+management:
+  endpoints:
+    web:
+      base-path: /actuator  #访问端点的根路径，默认为/actuator
+      exposure:
+        include: busrefresh,busenv
+      #        include: '*'  #需要开启的端点，主要用到的是refresh,此处没有用bus去刷新
+      #  exclude:  #不需要开启的端点
+health:
+  config:
+    enabled: true
+    time-to-live: 60

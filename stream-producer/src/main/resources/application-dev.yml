@@ -1,0 +1,46 @@
+server:
+  port: 8001
+spring:
+  application:
+    name: stream-producer
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+  cloud:
+    stream:
+      binders:
+        defaultRabbit:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                addresses: localhost # 服务器IP
+                port: 5672  # 服务器端口
+                username: guest # 用户名
+                password: guest # 密码
+      bindings:
+        send-out-0:
+          destination: studyExchange
+          content-type: application/json
+        email-in-0:
+          destination: emailExchange
+          content-type: application/json
+          group: emailGroup  # 自定义 分组名称
+        mobile-in-0:
+          destination: mobileExchange
+          content-type: application/json
+          group: mobileGroup  # 自定义 分组名称，一条消息，每个消费者组只能有一个消费者消费到
+      #消费者需配置以下方法，不然rabbitMq无法生成queue，无法消费信息
+      function:
+        definition: email;mobile
+
+eureka:
+  instance:
+    prefer-ip-address: true  #是否使用ip地址注册
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+  client:
+    service-url: #设置服务注册中心地址，集群环境
+      defaultZone: http://root:123456@localhost:8761/eureka/,http://root:123456@localhost:8762/eureka/

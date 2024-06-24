@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    bootstrap:
+      enabled: true
+    config:
+      uri: http://localhost:8888/ #config-server服务端地址
+      name: config-client  # 配置文件名称，对应git仓库中配置文件的前半部分
+      label: master  #git分支
+      profile: default #指定环境
+  config:
+    import: optional:configserver:http://localhost:8888/   #指定Spring Boot项目从Config Server导入配置,import属性中的位置优先于uri属性。注意末尾的/不能省略
+    name: config-client
